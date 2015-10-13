@@ -1,0 +1,16 @@
+\documentclass[12pt]{article}
+\usepackage[landscape]{geometry}
+\usepackage{fullpage}
+\begin{document}\pagenumbering{gobble}
+\begin{center}
+\textbf{\Huge Bayes' Rule}\\
+\vfil
+\includegraphics[width = \textwidth]{../../etc/PuppiesBayesRule.png}
+\end{center}
+\vfil
+\Large
+The posterior distribution is a compromise between the likelihood and the prior: The half-up ears are a compromise between the perky ears and the floppy ears. The marginal likelihood, a.k.a. evidence, is not needed in MCMC methods, so it gets sleepy with nothing much to do.
+
+
+
+\end{document}

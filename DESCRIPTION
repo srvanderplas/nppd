@@ -1,6 +1,6 @@
 Package: nppd
 Type: Package
-Title: What the Package Does (Title Case)
+Title: Functions for Analysis at Nebraska Public Power District
 Version: 0.1.0
 Author: Susan VanderPlas
 Maintainer: Susan VanderPlas <s1vande@nppd.com>
@@ -10,5 +10,17 @@ LazyData: TRUE
 Suggests:
   testthat
 Depends:
+  tm,
+  methods,
+  RColorBrewer,
+  slam,
+  Rcpp,
   dplyr,
-  lubridate
+  lubridate,
+  stringr,
+  readr,
+  magrittr,
+  ggplot2
+Imports: slam, Rcpp (>= 0.9.4)
+LinkingTo: Rcpp
+NeedsCompilation: yes

@@ -4,6 +4,7 @@
 #' @param init starting values for optimization. Recommendation: (x, 1), where x is close to the expected value (or median) of your distribution.
 #' @param ... Other options passed to optim
 #' @return shape and scale parameters for the gamma distribution, (a, s), where EX = a*s and Var(X) = a*s^2
+#' @export
 quantiles_to_gamma_pars = function(qu, p, init=c(1,1), quiet = F, ...) {
   # I think that the p-th quantile occurs at qu
   qu <- qu
@@ -31,6 +32,7 @@ quantiles_to_gamma_pars = function(qu, p, init=c(1,1), quiet = F, ...) {
 #' @param init starting values for optimization. Recommendation: (mean, 1), where x is close to the expected value (or median) of your distribution.
 #' @param ... Other options passed to optim
 #' @return shape and scale parameters for the gamma distribution, (a, s), where EX = a*s and Var(X) = a*s^2
+#' @export
 mean_quantile_to_gamma_pars = function(mean, qu, p, init=c(1,1), quiet = F, ...) {
   # I think that the p-th quantile occurs at qu
   qu <- qu

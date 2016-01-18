@@ -11,8 +11,6 @@ Suggests:
   testthat
 Depends:
   tm,
-  methods,
-  RColorBrewer,
   slam,
   Rcpp,
   dplyr,
@@ -21,6 +19,6 @@ Depends:
   readr,
   magrittr,
   ggplot2
-Imports: slam, Rcpp (>= 0.9.4)
+Imports: slam, Rcpp (>= 0.9.4), methods, RColorBrewer
 LinkingTo: Rcpp
 NeedsCompilation: yes

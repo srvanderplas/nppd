@@ -1,3 +1,17 @@
+#' @useDynLib nppd
+#' @exportPattern "^[[:alpha:]]+"
+#' @importFrom Rcpp sourceCpp
+NULL
+
+#' .overlap
+#'
+#' C function to calculate whether text overlaps
+#'
+#' @noRd
+.overlap <- function(x11,y11,sw11,sh11,boxes1){
+  .Call("is_overlap",x11,y11,sw11,sh11,boxes1, package = "nppd")
+}
+
 #' Modify stem completion to go for the shortest word
 #' @param x vector of strings
 #' @param dict dictionary
@@ -71,7 +85,6 @@ MakeWordFreq <- function(wordlist, stem = T, rm.stopwords = T,
 }
 
 #' Function to make a wordcloud
-#' @useDynLib wordcloud
 #' @param x word frequency data frame (from MakeWordFreq), with columns "word" and "freq"
 #' @param color.set vector of colors
 #' @param max.words maximum words
@@ -81,7 +94,10 @@ MakeWordFreq <- function(wordlist, stem = T, rm.stopwords = T,
 #' @param ... arguments to wordcloud()
 #' @return wordcloud
 #' @export
-MakeWordcloud <- function(x, color.set = brewer.pal(6, "Dark2"), colors = color.set, max.words = 50, rot.per = .3, random.order = F, random.color = T, ...){
+#' @examples
+#' readLines("./data/compileText.txt") %>% str_replace_all("[[^[A-z] _]\\\\`]", " ") %>% str_split(" ") %>% unlist %>%  str_trim() %>% table() %>% as.data.frame(stringsAsFactors = F) %>% set_names(c("word", "freq")) %>% filter(nchar(word) > 0) -> tmp
+#' tmp %>% MakeWordcloud()
+MakeWordcloud <- function(x, color.set = RColorBrewer::brewer.pal(6, "Dark2"), colors = color.set, max.words = 50, rot.per = .3, random.order = F, random.color = T, ...){
   stopifnot(sum(c("word", "freq") %in% names(x)) == 2)
   args <- list(...)
   if ("word" %in% names(x)) {
@@ -112,20 +128,27 @@ MakeWordcloud <- function(x, color.set = brewer.pal(6, "Dark2"), colors = color.
 #' @param rot.per proportion words with 90 degree rotation
 #' @param colors color words from least to most frequent
 #' @param ordered.colors if true, then colors are assigned to words in order
-#' @param use.r.layout if false, then c ++ code is used for collision detection, otherwise R is used
+#' @param use.r.layout if false, then c++ code is used for collision detection, otherwise R is used
 #' @param fixed.asp if TRUE the aspect ratio is fixed. Variable aspect ratio only supported if rot.per == 0
 #' @param asp aspect ratio of plot (if fixed aspect ratio)
 #' @param ... Additional parameters to be passed to text (and strheight, strwidth).
-#' @useDynLib wordcloud
 #' @export
 wordcloud <- function(
   words, freq, scale = c(4, 0.5), min.freq = 3, max.words = Inf,
   random.order = TRUE, random.color = FALSE, rot.per = 0.1,
   colors = "black", ordered.colors = FALSE, use.r.layout = FALSE,
-  fixed.asp = TRUE, asp = 1.5, ...)
+  fixed.asp = TRUE, asp = 1, ...)
 {
   if (!fixed.asp && rot.per > 0)
     stop("Variable aspect ratio not supported for rotated words. Set rot.per = 0.")
+
+  if (asp == 0 | is.infinite(asp)) {
+    stop("Aspect ratio must not be 0 or infinite")
+  } else {
+    xlen = 1/asp
+    ylen = 1
+  }
+
   tails <- "g|j|p|q|y"
   last <- 1
   nc <- length(colors)
@@ -198,7 +221,7 @@ wordcloud <- function(
   op <- par("mar")
   par(mar = c(0, 0, 0, 0))
   if (fixed.asp)
-    plot.window(c(0, asp), c(0, 1), asp = asp)
+    plot.window(c(0, xlen), c(0, ylen), asp = asp)
   else plot.window(c(0, 1), c(0, 1))
   normedFreq <- freq/max(freq)
   size <- (scale[1] - scale[2]) * normedFreq + scale[2]
@@ -207,8 +230,8 @@ wordcloud <- function(
     rotWord <- runif(1) < rot.per
     r <- 0
     theta <- runif(1, 0, 2 * pi)
-    x1 <- asp/2
-    y1 <- 0.5
+    x1 <- xlen/2
+    y1 <- ylen/2
     wid <- strwidth(words[i], cex = size[i], ...)
     ht <- strheight(words[i], cex = size[i], ...)
     if (grepl(tails, words[i]))
@@ -223,8 +246,8 @@ wordcloud <- function(
       if (!overlap(x1 - 0.5 * wid, y1 - 0.5 * ht, wid, ht) &&
           x1 - 0.5 * wid > 0 &&
           y1 - 0.5 * ht > 0 &&
-          x1 + 0.5 * wid < asp &&
-          y1 + 0.5 * ht < 1) {
+          x1 + 0.5 * wid < xlen &&
+          y1 + 0.5 * ht < ylen) {
         if (!random.color) {
           if (ordered.colors) {
             cc <- colors[i]
@@ -244,24 +267,19 @@ wordcloud <- function(
         isOverlaped <- FALSE
       }
       else {
-        if (r > sqrt(0.5)) {
+        if (r > sqrt((xlen + ylen)/4)) {
           warning(paste(words[i], "could not be fit on page. It will not be plotted."))
           isOverlaped <- FALSE
         }
         theta <- theta + thetaStep
         r <- r + rStep * thetaStep/(2 * pi)
-        x1 <- 0.5 + r * cos(theta)
-        y1 <- 0.5 + r * sin(theta)
+        x1 <- xlen/2 + r * cos(theta)
+        y1 <- ylen/2 + r * sin(theta)
       }
     }
   }
   par(mar = op)
   invisible()
-}
-
-#Call down to c ++ to find out if any overplotting would occur
-.overlap <- function(x11, y11, sw11, sh11, boxes1){
-  .Call("is_overlap", x11, y11, sw11, sh11, boxes1)
 }
 
 #' A word cloud showing the common words among documents
@@ -303,13 +321,13 @@ commonality.cloud <- function(term.matrix, comonality.measure = min, max.words =
 #' @param random.order plot words in random order. If false, they will be plotted in decreasing frequency
 #' @param rot.per proportion words with 90 degree rotation
 #' @param colors color words from least to most frequent
-#' @param use.r.layout if false, then c ++ code is used for collision detection, otherwise R is used
+#' @param use.r.layout if false, then c++ code is used for collision detection, otherwise R is used
 #' @param title.size Size of document titles
 #' @param ... Additional parameters to be passed to text (and strheight, strwidth).
 #' @export
 comparison.cloud <- function(
   term.matrix, scale = c(4, .5), max.words = 300, random.order = FALSE,
-  rot.per = .1, colors = brewer.pal(ncol(term.matrix), "Dark2"),
+  rot.per = .1, colors = RColorBrewer::brewer.pal(ncol(term.matrix), "Dark2"),
   use.r.layout = FALSE, title.size = 3, ...) {
 
   ndoc <- ncol(term.matrix)

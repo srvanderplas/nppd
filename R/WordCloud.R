@@ -41,6 +41,7 @@ MakeWordFreq <- function(wordlist, stem = T, rm.stopwords = T,
   # Function to make a word frequency table
   wordlist %<>%
     str_to_lower() %>%
+    str_replace_all("'", "") %>%
     str_replace_all("\\n|\\r|\\\"|/", " ") %>%
     str_replace_all("[\\W“”≤]", " ") %>%
     iconv(to = "ASCII", sub = " ") %>%

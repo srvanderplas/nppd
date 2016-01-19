@@ -40,6 +40,7 @@ MakeWordFreq <- function(wordlist, stem = T, rm.stopwords = T,
 
   # Function to make a word frequency table
   wordlist %<>%
+    str_to_lower() %>%
     str_replace_all("\\n|\\r|\\\"|/", " ") %>%
     str_replace_all("[\\W“”≤]", " ") %>%
     iconv(to = "ASCII", sub = " ") %>%
@@ -47,12 +48,10 @@ MakeWordFreq <- function(wordlist, stem = T, rm.stopwords = T,
     str_replace_all("[[:punct:]]", " ") %>%
     str_replace_all("[^[A-z] ]", " ") %>%
     str_replace_all("[\\s]{1,}", " ") %>%
-    str_trim() %>%
-    str_to_lower() %>%
     paste(., collapse = " ", sep = " ") %>%
     str_split(boundary("word")) %>%
-    str_trim() %>%
-    unlist()
+    unlist() %>%
+    str_trim()
 
   if (rm.stopwords) {
     wordlist <- wordlist[!wordlist %in% c(tm::stopwords("en"), stopword.list)]

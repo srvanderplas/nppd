@@ -48,12 +48,16 @@ MakeWordFreq <- function(wordlist, stem = T, rm.stopwords = T,
     str_replace_all("[[:punct:]]", " ") %>%
     str_replace_all("[\\s]{1,}", " ") %>%
     str_trim() %>%
+    str_to_lower() %>%
     paste(., collapse = " ", sep = " ") %>%
     str_split(boundary("word")) %>%
+    str_trim() %>%
     unlist()
 
   if (rm.stopwords) {
-    wordlist <- wordlist[!wordlist%in%c(tm::stopwords("en"), stopword.list)]
+    wordlist <- wordlist[!wordlist %in% c(tm::stopwords("en"), stopword.list)]
+  } else if (length(stopword.list) > 0) {
+    wordlist <- wordlist[!wordlist %in% stopword.list]
   }
 
   wordlist %<>%
@@ -73,11 +77,13 @@ MakeWordFreq <- function(wordlist, stem = T, rm.stopwords = T,
     group_by(stems) %>%
     summarize(word = word[which.max(freq)], freq = sum(freq)) %>%
     ungroup() %>%
-    select( -stems)
+    select(-stems)
 
   if (rm.stopwords) {
     wordlist %<>%
       subset(!word %in% c(tm::stopwords("en"), stopword.list))
+  } else if (length(stopword.list) > 0) {
+    wordlist <- wordlist[!wordlist %in% stopword.list]
   }
 
   wordlist %<>%

@@ -38,7 +38,6 @@ stemCompletion_mod <- function(x, dict, type = "shortest") {
 MakeWordFreq <- function(wordlist, stem = T, rm.stopwords = T,
                          stopword.list = NULL){
 
-  rmSpecialChars <- tm::content_transformer(function(x) gsub("[\\W“”≤]", " ", x) %>% str_trim())
   # Function to make a word frequency table
   wordlist %<>%
     str_replace_all("\\n|\\r|\\\"|/", " ") %>%
@@ -46,6 +45,7 @@ MakeWordFreq <- function(wordlist, stem = T, rm.stopwords = T,
     iconv(to = "ASCII", sub = " ") %>%
     str_replace_all("[\\d]", " ") %>%
     str_replace_all("[[:punct:]]", " ") %>%
+    str_replace_all("[^[A-z] ]", " ") %>%
     str_replace_all("[\\s]{1,}", " ") %>%
     str_trim() %>%
     str_to_lower() %>%

@@ -8,17 +8,22 @@ Description: Contains helper functions for NPPD analyses and reports
 License: Proprietary
 LazyData: TRUE
 Suggests:
-  testthat
+    testthat
 Depends:
-  tm,
-  slam,
-  Rcpp,
-  dplyr,
-  lubridate,
-  stringr,
-  readr,
-  magrittr,
-  ggplot2
-Imports: slam, Rcpp (>= 0.9.4), methods, RColorBrewer
+    tm,
+    slam,
+    Rcpp,
+    dplyr,
+    lubridate,
+    stringr,
+    readr,
+    magrittr,
+    ggplot2
+Imports:
+    slam,
+    Rcpp (>= 0.9.4),
+    methods,
+    RColorBrewer
 LinkingTo: Rcpp
 NeedsCompilation: yes
+RoxygenNote: 5.0.1

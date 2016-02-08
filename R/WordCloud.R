@@ -90,6 +90,75 @@ MakeWordFreq <- function(wordlist, stem = T, rm.stopwords = T,
     dplyr::arrange(desc(freq))
 }
 
+
+#' Create a word frequency comparison table from a list of words or phrases
+#' @param wordlists list containing two vectors of strings
+#' @param stem T/F - stem?
+#' @param rm.stopwords T/F - remove english stopwords?
+#' @param stopword.list List of stopwords to remove in addition to english stopwords (only matters if rm.stopwords is T)
+#' @return word frequency list
+#' @export
+MakeWordFreqCompare <- function(
+  wordlists,
+  stem = T, rm.stopwords = T,
+  stopword.list = NULL){
+
+  list1 <- MakeWordFreq(wordlists[[1]], stem = stem, rm.stopwords = rm.stopwords, stopword.list = stopword.list)
+  list2 <- MakeWordFreq(wordlists[[2]], stem = stem, rm.stopwords = rm.stopwords, stopword.list = stopword.list)
+
+  if (rm.stopwords) {
+    list1 <- list1[!list1 %in% c(tm::stopwords("en"), stopword.list)]
+    list2 <- list2[!list2 %in% c(tm::stopwords("en"), stopword.list)]
+  } else if (length(stopword.list) > 0) {
+    list1 <- list1[!list1 %in% stopword.list]
+    list2 <- list2[!list2 %in% stopword.list]
+  }
+
+  list1 %<>%
+    magrittr::set_names(c("word", "freq1"))
+
+  list2 %<>%
+    magrittr::set_names(c("word", "freq2"))
+
+  wordlist <- full_join(list1, list2)
+  wordlist$freq1[is.na(wordlist$freq1)] <- 0
+  wordlist$freq2[is.na(wordlist$freq2)] <- 0
+
+
+  if (stem) {
+    wordlist %<>%
+      dplyr::mutate(stems = tm::stemDocument(word))
+  } else {
+    wordlist %<>%
+      dplyr::mutate(stems = word)
+  }
+
+  wordlist %<>%
+    group_by(stems) %>%
+    summarize(word = word[which.max(freq1 + freq2)], freq1 = sum(freq1), freq2 = sum(freq2), total.freq = sum(freq1 + freq2)) %>%
+    ungroup() %>%
+    select(-stems)
+
+  if (rm.stopwords) {
+    wordlist %<>%
+      subset(!word %in% c(tm::stopwords("en"), stopword.list))
+  } else if (length(stopword.list) > 0) {
+    wordlist <- wordlist[!wordlist %in% stopword.list]
+  }
+
+  wordlist %<>%
+    dplyr::arrange(desc(total.freq)) %>%
+    select(-total.freq)
+
+  rows <- wordlist$word
+  cols <- names(wordlists)
+
+  mat <- as.matrix(wordlist[,2:3])
+  rownames(mat) <- rows
+  colnames(mat) <- cols
+  mat
+}
+
 #' Function to make a wordcloud
 #' @param x word frequency data frame (from MakeWordFreq), with columns "word" and "freq"
 #' @param color.set vector of colors

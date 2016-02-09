@@ -135,7 +135,12 @@ MakeWordFreqCompare <- function(
 
   wordlist %<>%
     group_by(stems) %>%
-    summarize(word = word[which.max(freq1 + freq2)], freq1 = sum(freq1), freq2 = sum(freq2), total.freq = sum(freq1 + freq2)) %>%
+    summarize(
+      word = word[which.max(freq1 + freq2)],
+      freq1 = sum(freq1),
+      freq2 = sum(freq2),
+      total.freq = sum(freq1 + freq2)
+    ) %>%
     ungroup() %>%
     select(-stems)
 

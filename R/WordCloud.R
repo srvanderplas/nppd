@@ -177,7 +177,7 @@ MakeWordFreqCompare <- function(
 #' @examples
 #' readLines("./data/compileText.txt") %>% str_replace_all("[[^[A-z] _]\\\\`]", " ") %>% str_split(" ") %>% unlist %>%  str_trim() %>% table() %>% as.data.frame(stringsAsFactors = F) %>% set_names(c("word", "freq")) %>% filter(nchar(word) > 0) -> tmp
 #' tmp %>% MakeWordcloud()
-MakeWordcloud <- function(x, color.set = RColorBrewer::brewer.pal(6, "Dark2"), colors = color.set, max.words = 50, rot.per = .3, random.order = F, random.color = T, ...){
+MakeWordcloud <- function(x, color.set = RColorBrewer::brewer.pal(6, "Dark2"), colors = color.set, max.words = 50, rot.per = .3, random.order = F, random.color = T, scale = c(4, .5), ...){
   stopifnot(sum(c("word", "freq") %in% names(x)) == 2)
   args <- list(...)
   if ("word" %in% names(x)) {
@@ -193,6 +193,7 @@ MakeWordcloud <- function(x, color.set = RColorBrewer::brewer.pal(6, "Dark2"), c
   args$max.words <- max.words
   args$random.order <- random.order
   args$rot.per <- rot.per
+  args$scale <- scale
 
   do.call(wordcloud, args)
 }

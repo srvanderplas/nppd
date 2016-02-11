@@ -11,7 +11,7 @@ mean_quantile_to_gamma_pars(mean, qu, p, init = c(1, 1), quiet = F, ...)
 
 \item{qu}{location (x) of p-th quantile.}
 
-\item{p}{quantile (i.e. 100*p% of the observed data is less than qu).}
+\item{p}{quantile (i.e. 100*p percent of the observed data is less than qu).}
 
 \item{init}{starting values for optimization. Recommendation: (mean, 1), where x is close to the expected value (or median) of your distribution.}
 

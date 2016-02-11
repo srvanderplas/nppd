@@ -7,6 +7,7 @@
 #' @param equiv.obs Number of equivalent observations supplied by the prior distribution
 #' @return data frame with columns alpha and beta, representing parameters shape1 and shape2 of a beta distribution
 #' @details Two of Nk, Sk, Fk must be supplied (non-null); the third will be calculated.
+#' @export
 equivBetaPars <- function(Nk = NULL, Sk = NULL, Fk = NULL, equiv.obs = 5){
   # Check to ensure Nk, Sk, Fk are reasonable
   if ((is.null(Nk) + is.null(Sk) + is.null(Fk)) > 1) {
@@ -56,6 +57,7 @@ equivBetaPars <- function(Nk = NULL, Sk = NULL, Fk = NULL, equiv.obs = 5){
 #' @return data frame with columns alpha and beta, representing parameters shape1 and shape2 of a beta distribution
 #' @details Two of Ni, Si, Fi must be supplied (non-null); the third will be calculated. Either equiv.obs and two of Nk, Sk, Fk must be supplied, or pars must be a vector of length two or a matrix of at least two columns.
 #' Similarly, two of Nk, Sk, Fk must be supplied along with equiv.obs (the prior parameters will be calculated using this information)
+#' @export
 betaBinomPosteriorPars <- function(Ni = NULL, Si = NULL, Fi = NULL, Nk = NULL, Sk = NULL, Fk = NULL, equiv.obs = NULL, pars = NULL){
   if (is.null(pars)) {
     pars <- as.matrix(

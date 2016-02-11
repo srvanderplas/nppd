@@ -9,7 +9,7 @@ quantiles_to_gamma_pars(qu, p, init = c(1, 1), quiet = F, ...)
 \arguments{
 \item{qu}{location (x) of p-th quantile. Vector of length 2.}
 
-\item{p}{quantile (i.e. 100*p% of the observed data is less than qu). Vector of length 2.}
+\item{p}{quantile (i.e. 100*p percent of the observed data is less than qu). Vector of length 2.}
 
 \item{init}{starting values for optimization. Recommendation: (x, 1), where x is close to the expected value (or median) of your distribution.}
 

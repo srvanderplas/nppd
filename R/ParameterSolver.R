@@ -1,6 +1,7 @@
 #' Function to find parameters for a gamma distn
+#'
 #' @param qu location (x) of p-th quantile. Vector of length 2.
-#' @param p quantile (i.e. 100*p% of the observed data is less than qu). Vector of length 2.
+#' @param p quantile (i.e. 100*p percent of the observed data is less than qu). Vector of length 2.
 #' @param init starting values for optimization. Recommendation: (x, 1), where x is close to the expected value (or median) of your distribution.
 #' @param ... Other options passed to optim
 #' @return shape and scale parameters for the gamma distribution, (a, s), where EX = a*s and Var(X) = a*s^2
@@ -26,9 +27,10 @@ quantiles_to_gamma_pars = function(qu, p, init=c(1,1), quiet = F, ...) {
 }
 
 #' Function to find parameters for a gamma distn
+#'
 #' @param mean expected value of the distribution
 #' @param qu location (x) of p-th quantile.
-#' @param p quantile (i.e. 100*p% of the observed data is less than qu).
+#' @param p quantile (i.e. 100*p percent of the observed data is less than qu).
 #' @param init starting values for optimization. Recommendation: (mean, 1), where x is close to the expected value (or median) of your distribution.
 #' @param ... Other options passed to optim
 #' @return shape and scale parameters for the gamma distribution, (a, s), where EX = a*s and Var(X) = a*s^2

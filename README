@@ -1,0 +1,11 @@
+# NPPD Package
+
+TODO:
+- ggpareto plot function - pass in barchart and cumulative frequency chart, return a combined plot.
+    - Handle legends appropriately
+
+- ggcalendar heatmap geom for ggplot 2.1.0
+
+- test coverage
+
+- wordcloud frequency function to compare frequency to "average frequency" - fold change/log odds?

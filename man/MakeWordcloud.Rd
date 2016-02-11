@@ -6,7 +6,7 @@
 \usage{
 MakeWordcloud(x, color.set = RColorBrewer::brewer.pal(6, "Dark2"),
   colors = color.set, max.words = 50, rot.per = 0.3, random.order = F,
-  random.color = T, ...)
+  random.color = T, scale = c(4, 0.5), ...)
 }
 \arguments{
 \item{x}{word frequency data frame (from MakeWordFreq), with columns "word" and "freq"}

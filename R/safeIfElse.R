@@ -4,6 +4,6 @@
 #' @param no replacement if condition is false
 #' @details From http://stackoverflow.com/questions/6668963/how-to-prevent-ifelse-from-turning-date-objects-into-numeric-objects
 #' @export
-safe.ifelse <- function(cond, yes, no) {
+safe_ifelse <- function(cond, yes, no) {
   structure(ifelse(cond, yes, no), class = class(yes))
 }

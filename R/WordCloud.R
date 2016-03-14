@@ -175,7 +175,8 @@ MakeWordFreqCompare <- function(
 #' @return wordcloud
 #' @export
 #' @examples
-#' readLines("./data/compileText.txt") %>% str_replace_all("[[^[A-z] _]\\\\`]", " ") %>% str_split(" ") %>% unlist %>%  str_trim() %>% table() %>% as.data.frame(stringsAsFactors = F) %>% set_names(c("word", "freq")) %>% filter(nchar(word) > 0) -> tmp
+#' data(compilerOutput, package = "nppd")
+#' compiler.output %>% str_replace_all("[[^[A-z] _]\\\\`]", " ") %>% str_split(" ") %>% unlist %>%  str_trim() %>% table() %>% as.data.frame(stringsAsFactors = FALSE) %>% set_names(c("word", "freq")) %>% filter(nchar(word) > 0) -> tmp
 #' tmp %>% MakeWordcloud()
 MakeWordcloud <- function(x, color.set = RColorBrewer::brewer.pal(6, "Dark2"), colors = color.set, max.words = 50, rot.per = .3, random.order = F, random.color = T, scale = c(4, .5), ...){
   stopifnot(sum(c("word", "freq") %in% names(x)) == 2)
@@ -408,7 +409,7 @@ commonality.cloud <- function(term.matrix, comonality.measure = min, max.words =
 #' @export
 comparison.cloud <- function(
   term.matrix, scale = c(4, .5), max.words = 300, random.order = FALSE,
-  rot.per = .1, colors = RColorBrewer::brewer.pal(ncol(term.matrix), "Dark2"),
+  rot.per = .1, colors = RColorBrewer::brewer.pal(6, "Dark2"),
   use.r.layout = FALSE, title.size = 3, ...) {
 
   ndoc <- ncol(term.matrix)
@@ -493,7 +494,7 @@ comparison.cloud <- function(
          y1 - .5*ht,
          x1 + .5*wid,
          y1 + .5*ht,
-         col = "grey90",
+         col = "grey95",
          border = "transparent")
     text(x1, y1, word, cex = title.size)
     boxes[[length(boxes) + 1]] <- c(x1 - .5*wid, y1 - .5*ht, wid, ht)

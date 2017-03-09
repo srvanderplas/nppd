@@ -11,32 +11,37 @@ NULL
 .overlap <- function(x11,y11,sw11,sh11,boxes1){
   .Call("is_overlap",x11,y11,sw11,sh11,boxes1, package = "nppd")
 }
-
-#' Modify stem completion to go for the shortest word
-#' @param x vector of strings
-#' @param dict dictionary
-#' @param type Defaults to "shortest"
-#' @return PlainTextDocument
-#' @export
-stemCompletion_mod <- function(x, dict, type = "shortest") {
-  x %>% as.character() %>%
-    strsplit(split = " ") %>%
-    paste() %>%
-    tm::stemCompletion(dictionary = dict, type = type) %>%
-    paste(sep = "", collapse = " ") %>%
-    tm::stripWhitespace() %>%
-    tm::PlainTextDocument
-}
+#
+# #' Modify stem completion to go for the shortest word
+# #' @param x vector of strings
+# #' @param dict dictionary
+# #' @param type Defaults to "shortest"
+# #' @return PlainTextDocument
+# #' @export
+# stemCompletion_mod <- function(x, dict, type = "shortest") {
+#   x %>% as.character() %>%
+#     strsplit(split = " ") %>%
+#     paste() %>%
+#     tm::stemCompletion(dictionary = dict, type = type) %>%
+#     paste(sep = "", collapse = " ") %>%
+#     tm::stripWhitespace() %>%
+#     tm::PlainTextDocument
+# }
 
 #' Create a word frequency table from a list of words or phrases
 #' @param wordlist vector of strings
 #' @param stem T/F - stem?
 #' @param rm.stopwords T/F - remove english stopwords?
 #' @param stopword.list List of stopwords to remove in addition to english stopwords (only matters if rm.stopwords is T)
-#' @return word frequency list
+#' @return word frequency data frame
 #' @export
 MakeWordFreq <- function(wordlist, stem = T, rm.stopwords = T,
                          stopword.list = NULL){
+
+  if (class(wordlist) != "character") {
+    warning("Attempting to convert wordlist to character vector")
+    wordlist <- as.vector(wordlist, mode = "character")
+  }
 
   # Function to make a word frequency table
   wordlist %<>%
@@ -54,10 +59,8 @@ MakeWordFreq <- function(wordlist, stem = T, rm.stopwords = T,
     unlist() %>%
     str_trim()
 
-  if (rm.stopwords) {
-    wordlist <- wordlist[!wordlist %in% c(tm::stopwords("en"), stopword.list)]
-  } else if (length(stopword.list) > 0) {
-    wordlist <- wordlist[!wordlist %in% stopword.list]
+  if (length(wordlist) == 0) {
+    stop("Wordlist has no words after removing punctuation, numbers, and extra spaces.")
   }
 
   wordlist %<>%
@@ -68,6 +71,27 @@ MakeWordFreq <- function(wordlist, stem = T, rm.stopwords = T,
   if (stem) {
     wordlist %<>%
       dplyr::mutate(stems = tm::stemDocument(word))
+
+    # Stem stopword list
+
+    if (!is.null(stopword.list )) {
+      stopword.df <- data.frame(word = stopword.list) %>%
+        mutate(stems = tm::stemDocument(stopword.list))
+    } else {
+      stopword.df <- data.frame(word = NULL, stem = NULL)
+    }
+
+    # Remove stemmed stopwords as well...
+    if (rm.stopwords) {
+      wordlist <- filter(wordlist,
+                         !word %in% c(tm::stopwords("en"),
+                                      stopword.df$word,
+                                      stopword.df$stems),
+                         !stems %in% c(tm::stopwords("en"),
+                                       stopword.df$stems))
+    } else if (length(stopword.list) > 0) {
+      wordlist <- wordlist[!wordlist %in% stopword.list]
+    }
   } else {
     wordlist %<>%
       dplyr::mutate(stems = word)
@@ -87,7 +111,8 @@ MakeWordFreq <- function(wordlist, stem = T, rm.stopwords = T,
   }
 
   wordlist %<>%
-    dplyr::arrange(desc(freq))
+    dplyr::arrange(desc(freq)) %>%
+    as.data.frame()
 }
 
 
@@ -521,7 +546,7 @@ comparison.cloud <- function(
       inCorrectRegion <- theta > thetaBins[group[i]] && theta < thetaBins[group[i] + 1]
       if (inCorrectRegion && !overlap(x1 - .5*wid, y1 - .5*ht, wid, ht) &&
          x1 - .5*wid > 0 && y1 - .5*ht > 0 &&
-         x1 + .5*wid < 1 && y1 + .5*ht < 1){
+         x1 + .5*wid < 1 && y1 + .5*ht < 1) {
         text(x1, y1, words[i], cex = size[i], offset = 0, srt = rotWord*90,
              col = colors[group[i]], ...)
         #rect(x1 - .5*wid, y1 - .5*ht, x1 + .5*wid, y1 + .5*ht)
@@ -583,7 +608,7 @@ wordlayout <- function(x, y, words, cex = 1, rotate90 = FALSE,
     while (isOverlaped) {
       if (!.overlap(x1 - .5*wid, y1 - .5*ht, wid, ht, boxes) &&
          x1 - .5*wid > xlim[1] && y1 - .5*ht > ylim[1] &&
-         x1 + .5*wid < xlim[2] && y1 + .5*ht < ylim[2]){
+         x1 + .5*wid < xlim[2] && y1 + .5*ht < ylim[2]) {
         boxes[[length(boxes) + 1]] <- c(x1 - .5*wid, y1 - .5*ht, wid, ht)
         isOverlaped <- FALSE
       } else {
@@ -610,8 +635,8 @@ textplot <- function(x, y, words, cex = 1, new = TRUE, show.lines = TRUE, ...){
       yl <- lay[i, 2]
       w <- lay[i, 3]
       h <- lay[i, 4]
-      if(x[i] < xl || x[i] > xl + w ||
-         y[i] < yl || y[i] > yl + h){
+      if (x[i] < xl || x[i] > xl + w ||
+          y[i] < yl || y[i] > yl + h) {
         points(x[i], y[i], pch = 16, col = "red", cex = .5)
         nx <- xl + .5*w
         ny <- yl + .5*h

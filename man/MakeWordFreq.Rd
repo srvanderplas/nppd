@@ -16,7 +16,7 @@ MakeWordFreq(wordlist, stem = T, rm.stopwords = T, stopword.list = NULL)
 \item{stopword.list}{List of stopwords to remove in addition to english stopwords (only matters if rm.stopwords is T)}
 }
 \value{
-word frequency list
+word frequency data frame
 }
 \description{
 Create a word frequency table from a list of words or phrases
